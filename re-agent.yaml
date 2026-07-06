@@ -1,0 +1,48 @@
+# re-agent config for Beyond Alert — Path A (no C++ source mirror)
+# Reverse C&C (gamemd.exe) functions to clean C++ we hand-port to Rust.
+# The GTA source-parity engine is intentionally OFF; we rely on the reverser
+# plus the objective verifier (call-count / control-flow vs Ghidra).
+
+project_profile:
+  # No hooked C++ mirror of the binary exists (parsers are Rust in ba-assets),
+  # so all source-matching patterns are empty. This neutralizes the GTA/plugin-sdk
+  # assumptions (RH_ScopedInstall, NOTSA_UNREACHABLE, plugin::Call, game_sa).
+  hook_patterns: []
+  stub_patterns: []
+  stub_markers: []
+  stub_call_prefix: ""
+  class_macro: ""
+  source_root: ""
+  source_extensions: []
+  hooks_csv: ""
+
+llm:
+  provider: "claude-cli"     # drive the local `claude` CLI via subscription — NO API key
+  model: "claude-opus-4-8"   # confirmed via claude-api skill; exact string, no date suffix
+  max_tokens: 8192
+  timeout_s: 1800
+
+backend:
+  type: "ghidra-bridge"
+  # Bridge console script in this venv. Its own ghidra-bridge.yaml (same dir)
+  # points at the exported GameMDProject decompilation.
+  cli_path: "C:\\Users\\Trin\\Projects\\auto-re-agent\\.venv\\Scripts\\ghidra-bridge.exe"
+  timeout_s: 120
+
+parity:
+  enabled: false             # Path A: no source mirror to verify against
+  call_count_warn_diff: 3
+  cache_dir: ".cache/re-agent-parity"
+
+orchestrator:
+  max_review_rounds: 4
+  max_functions_per_class: 10
+  objective_verifier_enabled: true   # call-count / control-flow vs Ghidra (no source needed)
+  objective_call_count_tolerance: 3
+  objective_control_flow_tolerance: 2
+
+output:
+  report_dir: "reports/re-agent"
+  log_dir: "reports/re-agent/logs"
+  session_file: "re-agent-progress.json"
+  format: "json"

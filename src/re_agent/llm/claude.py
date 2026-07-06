@@ -25,7 +25,7 @@ class ClaudeProvider:
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "claude-sonnet-4-5-20250929",
+        model: str = "claude-opus-4-8",
         max_tokens: int = 4096,
         temperature: float = 0.0,
     ) -> None:
@@ -34,6 +34,19 @@ class ClaudeProvider:
         self._max_tokens = max_tokens
         self._temperature = temperature
         self._conversations: dict[str, list[Message]] = {}
+
+    @staticmethod
+    def _is_adaptive_thinking_model(model: str) -> bool:
+        """Models that reject temperature/top_p/budget_tokens and use adaptive
+        thinking + the effort parameter (Fable 5, Opus 4.6+, Sonnet 4.6).
+
+        For these, we must NOT send `temperature` (400) and instead steer with
+        `thinking={"type": "adaptive"}` + `output_config={"effort": ...}`.
+        """
+        m = model.lower()
+        modern = ("claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6",
+                  "claude-sonnet-4-6", "claude-fable-5")
+        return any(m.startswith(p) for p in modern)
 
     # -- LLMProvider interface ------------------------------------------------
 
@@ -48,12 +61,19 @@ class ClaudeProvider:
             else:
                 api_messages.append({"role": msg.role, "content": msg.content})
 
+        model = kwargs.get("model", self._model)
         create_kwargs: dict[str, Any] = {
-            "model": kwargs.get("model", self._model),
+            "model": model,
             "max_tokens": kwargs.get("max_tokens", self._max_tokens),
-            "temperature": kwargs.get("temperature", self._temperature),
             "messages": api_messages,
         }
+        if self._is_adaptive_thinking_model(model):
+            # Opus 4.8 / 4.7 / 4.6, Sonnet 4.6, Fable 5: sampling params 400.
+            # Steer with adaptive thinking + high effort for reversing accuracy.
+            create_kwargs["thinking"] = {"type": "adaptive"}
+            create_kwargs["output_config"] = {"effort": "high"}
+        else:
+            create_kwargs["temperature"] = kwargs.get("temperature", self._temperature)
         if system_text is not None:
             create_kwargs["system"] = system_text
 

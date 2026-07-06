@@ -1,0 +1,23 @@
+# ghidra-ai-bridge config for Beyond Alert — Red Alert 2 / Yuri's Revenge (gamemd.exe)
+# Adapted from the GTA:SA example. Points at the existing, already-analyzed
+# GameMDProject and the vendored Ghidra 12.0.4 install.
+
+ghidra:
+  install_dir: C:\Users\Trin\Projects\Beyond-Alert\tools\ghidra_12.0.4_PUBLIC
+  project_dir: C:\Users\Trin\Projects\Beyond-Alert\.sample\ghidra-output
+  project_name: GameMDProject
+  program_name: gamemd.exe
+
+paths:
+  export_dir: C:\Users\Trin\Projects\auto-re-agent\exports\gamemd
+  address_map: C:\Users\Trin\Projects\auto-re-agent\exports\gamemd\address_map.json
+
+# NOTE: no `source:` section on purpose.
+# Beyond Alert has no C++ mirror of the binary (parsers are Rust in ba-assets),
+# so source integration / parity-vs-source is intentionally disabled (Path A).
+# The bridge works fine with just Ghidra exports.
+
+binary:
+  # Generous .text range for containing-address lookups (optional feature).
+  code_range_min: 0x00401000
+  code_range_max: 0x00a00000
