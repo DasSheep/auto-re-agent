@@ -11,8 +11,10 @@ build/
 *.egg
 .env
 
-# Beyond Alert / C&C usage — machine-local & game-derived, never commit:
-exports/            # ghidra-bridge decompile export of gamemd.exe (huge, game-derived)
-reports/            # re-agent reversed C++ output (game-derived)
+# Beyond Alert / C&C usage — machine-local & game-derived, never commit.
+# (ghidra-bridge decompile export of gamemd.exe; re-agent reversed C++ output;
+#  progress file; throwaway smoke-test scripts with hardcoded local paths.)
+exports/
+reports/
 re-agent-progress.json
-spike/              # throwaway smoke-test scripts with hardcoded local paths
+spike/
