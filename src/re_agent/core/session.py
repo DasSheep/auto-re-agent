@@ -29,7 +29,10 @@ class Session:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(".tmp")
         tmp.write_text(json.dumps(self._data, indent=2), encoding="utf-8")
-        tmp.rename(self.path)
+        # Path.replace() (os.replace) atomically overwrites on Windows too;
+        # Path.rename() (os.rename) raises FileExistsError on Windows when the
+        # target already exists, breaking every progress update after the first.
+        tmp.replace(self.path)
 
     def record_result(self, result: ReversalResult) -> None:
         addr = normalize_address(result.target.address)
