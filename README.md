@@ -118,7 +118,12 @@ See [docs/configuration.md](docs/configuration.md) for all options.
 
 - **Claude** (Anthropic SDK) — set `ANTHROPIC_API_KEY`
 - **OpenAI / OpenAI-compatible** — set `OPENAI_API_KEY`, optionally set `base_url`
-- **Codex CLI** — uses local `codex exec` with ChatGPT login credentials; no API key required
+- **Codex CLI** — uses local `codex exec` with ChatGPT login credentials; no API key required.
+  Set `llm.model: null` to inherit the logged-in Codex CLI default model, or set an explicit
+  Codex model string if you need to pin one.
+
+For the local GameMD/RE-TS setup, `re-agent.yaml` remains the Claude Code subscription config.
+Use `re-agent.codex.yaml` only when you want the same tooling to run through the ChatGPT/Codex CLI.
 
 ## Parity Engine
 

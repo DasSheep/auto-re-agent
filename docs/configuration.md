@@ -34,7 +34,12 @@ Notes:
 
 - `claude` uses the Anthropic SDK and typically reads `ANTHROPIC_API_KEY`
 - `openai` and `openai-compat` use the OpenAI-compatible chat completions provider and typically read `OPENAI_API_KEY`
-- `codex` uses the local `codex` CLI and ChatGPT login credentials instead of an API key
+- `codex` uses the local `codex` CLI and ChatGPT login credentials instead of an API key.
+  Set `model: null` to inherit the logged-in Codex CLI default model, or set an explicit
+  Codex model string to pin the run.
+
+Local GameMD/RE-TS configs are split by provider: `re-agent.yaml` is the established
+Claude Code subscription path, while `re-agent.codex.yaml` is the parallel Codex/ChatGPT path.
 
 ## Project Profile
 

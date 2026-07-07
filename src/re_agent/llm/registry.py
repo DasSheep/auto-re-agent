@@ -42,8 +42,11 @@ def create_provider(config: LLMConfig) -> LLMProvider:
     if config.provider == "codex":
         from re_agent.llm.codex_cli import CodexCLIProvider
 
+        model = config.model
+        if model in ("", "default", "codex-default", "claude-sonnet-4-5-20250929"):
+            model = None
         return CodexCLIProvider(
-            model=config.model or "gpt-5.4",
+            model=model,
             timeout_s=config.timeout_s,
         )
 

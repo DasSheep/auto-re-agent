@@ -1,0 +1,44 @@
+# re-agent config for RE-TS / GameMD using the local Codex CLI.
+# Keeps re-agent.yaml on the existing Claude CLI path while allowing the same
+# Ghidra backend to run through a ChatGPT-authenticated Codex subscription.
+
+project_profile:
+  hook_patterns: []
+  stub_patterns: []
+  stub_markers: []
+  stub_call_prefix: ""
+  class_macro: ""
+  source_root: ""
+  source_extensions: []
+  hooks_csv: ""
+
+llm:
+  provider: "codex"
+  # null = let `codex exec` use the logged-in Codex default from ~/.codex/config.toml.
+  # On this machine that currently resolves to gpt-5.5.
+  model: null
+  max_tokens: 8192
+  timeout_s: 1800
+
+backend:
+  type: "ghidra-bridge"
+  cli_path: "C:\\Users\\Trin\\Projects\\auto-re-agent\\.venv\\Scripts\\ghidra-bridge.exe"
+  timeout_s: 120
+
+parity:
+  enabled: false
+  call_count_warn_diff: 3
+  cache_dir: ".cache/re-agent-parity"
+
+orchestrator:
+  max_review_rounds: 4
+  max_functions_per_class: 10
+  objective_verifier_enabled: true
+  objective_call_count_tolerance: 3
+  objective_control_flow_tolerance: 2
+
+output:
+  report_dir: "reports/re-agent-codex"
+  log_dir: "reports/re-agent-codex/logs"
+  session_file: "re-agent-progress-codex.json"
+  format: "json"

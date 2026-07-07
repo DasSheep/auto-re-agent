@@ -1,4 +1,9 @@
-"""Codex CLI-backed LLM provider using ChatGPT login credentials."""
+"""Codex CLI-backed LLM provider using ChatGPT login credentials.
+
+The prompt is sent over stdin (``codex exec -``), not as a command-line
+argument. Reverse-engineering prompts are large enough that argv passing is
+fragile on Windows.
+"""
 from __future__ import annotations
 
 import subprocess
@@ -15,7 +20,7 @@ class CodexCLIProvider:
 
     def __init__(
         self,
-        model: str = "gpt-5.4",
+        model: str | None = None,
         timeout_s: int = 1800,
         codex_bin: str = "codex",
     ) -> None:
@@ -32,23 +37,12 @@ class CodexCLIProvider:
 
         try:
             proc = subprocess.run(
-                [
-                    self._codex_bin,
-                    "exec",
-                    "-s",
-                    "read-only",
-                    "--color",
-                    "never",
-                    "--skip-git-repo-check",
-                    "--output-last-message",
-                    str(out_path),
-                    "-m",
-                    str(model),
-                    prompt,
-                ],
+                self._build_argv(model, out_path),
+                input=prompt,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                encoding="utf-8",
                 timeout=self._timeout_s,
                 check=False,
             )
@@ -63,6 +57,23 @@ class CodexCLIProvider:
             raise RuntimeError(f"codex CLI not found: {self._codex_bin}") from exc
         finally:
             out_path.unlink(missing_ok=True)
+
+    def _build_argv(self, model: str | None, out_path: Path) -> list[str]:
+        argv = [
+            self._codex_bin,
+            "exec",
+            "-s",
+            "read-only",
+            "--color",
+            "never",
+            "--skip-git-repo-check",
+            "--output-last-message",
+            str(out_path),
+        ]
+        if model:
+            argv += ["-m", str(model)]
+        argv.append("-")
+        return argv
 
     @property
     def supports_conversations(self) -> bool:

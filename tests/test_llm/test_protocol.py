@@ -52,3 +52,16 @@ def test_mock_provider_send() -> None:
 def test_registry_creates_codex_provider() -> None:
     provider = create_provider(LLMConfig(provider="codex", model="gpt-5.4"))
     assert provider.supports_conversations
+
+
+def test_codex_provider_uses_stdin_and_optional_model(tmp_path) -> None:
+    from re_agent.llm.codex_cli import CodexCLIProvider
+
+    provider = CodexCLIProvider(model=None)
+    argv = provider._build_argv(None, tmp_path / "out.txt")
+    assert argv[-1] == "-"
+    assert "-m" not in argv
+
+    argv = provider._build_argv("gpt-5.5", tmp_path / "out.txt")
+    assert argv[-1] == "-"
+    assert argv[argv.index("-m") + 1] == "gpt-5.5"
